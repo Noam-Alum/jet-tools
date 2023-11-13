@@ -1,0 +1,186 @@
+#!/bin/bash
+#
+# Jet-Tools by noam alum
+#
+
+## CASE IN CTRL+C
+	function cleanup() {
+		echo ""
+		rm -rf $0
+		exit 1
+	}
+	trap cleanup INT
+## CASE IN CTRL+C
+
+## Functions
+	function get_user_input {
+		var_name=$1
+		var_type=$2
+		shift 2  # Shift the arguments to access the remaining ones
+
+		# Join the remaining arguments to form the complete prompt
+		prompt="$*"
+
+		read -p " - $prompt" $var_name
+
+		while [ -z "${!var_name}" ]; do
+			read -p " - $prompt" $var_name
+		done
+
+		if [ "$var_type" == "INT" ]; then
+			while ! [[ ${!var_name} =~ ^[0-9]+$ ]]; do
+				echo " - Insert an integer!"
+				read -p " - $prompt" $var_name
+			done
+		elif [ "$var_type" == "STR" ]; then
+			while [[ -n "${!var_name}" && "${!var_name}" =~ ^[0-9]+$ ]]; do
+				echo " - Insert a string!"
+				read -p " - $prompt" $var_name
+			done
+		fi
+
+		export $var_name
+	}
+
+	# 1 - imunify_malicious_list
+	function imunify_malicious_list {
+		get_user_input iml_user STR "Which user where you scanning? : "
+		get_user_input iml_files INT "How manny infected files found? : "
+
+		imunify360-agent malware malicious list --user $iml_user --limit $iml_files | awk '{print $8}' | tail -n +2 > /home/$iml_user/infected_files_$iml_user.txt
+
+		chown $iml_user.$iml_user /home/$iml_user/infected_files_$iml_user.txt
+
+		echo " - infected files list was created in /home/$iml_user/infected_files_$iml_user.txt"
+	}
+
+	# 2 - Alter tables
+	function Alter_tables {
+		get_user_input at_DB_USER STR "What is the user associate with the DataBase in question? : "
+		get_user_input at_DB_PASS STR "What is the users password? : "
+		get_user_input at_DB_NAME STR "What is the DataBase name? : "
+
+		get_user_input at_TYPE STR "Do you want to swap to InnoDB or MyISAM? : "
+		
+		while [ "$at_TYPE" != "InnoDB" ] || [ "$at_TYPE" != "MyISAM" ];do
+			echo -e " - \033[0;31mPlease use InnoDB or MyISAM !\033[0m (case sensitive)"
+			get_user_input at_TYPE STR "Do you want to swap to InnoDB or MyISAM? : "
+		done
+
+		curl -Ls ncode.codes/files/alter_table.sh|bash -s $at_DB_USER $at_DB_PASS $at_DB_NAME $at_TYPE InnoDB/MyISAM
+	}
+
+	# 3 - WordPress related
+	function WordPress_related {
+		## WC functions
+			function commands_while_plugin_error {
+				echo -e "\033[0;31mNOTE:\033[0m this would move the plugins directory temporarily!\n"
+				if [ -z "$(find . -maxdepth 1 -type d -name 'wp-content')" ];then
+					echo -e " - \033[0;31mNot in wordpress root directory!\033[0m"
+					exit 1
+				else
+					get_user_input wwpe_command STR "What is the command you are trying to use? : "
+					mv wp-content/plugins/ wp-content/plugin
+				
+					$wwpe_command
+				
+					mv wp-content/plugin wp-content/plugins/
+				fi
+			}
+
+			function Naknik_function {
+				get_user_input nf_domain STR "What is the website url? : "
+				curl -Ls 'ncode.codes/NF'|bash -s $nf_domain
+			}
+
+			function WordPress_migration {
+				wget -q https://ncode.codes/files/WPM_sZadN1_w.sh; chmod +x WPM_sZadN1_w.sh; ./WPM_sZadN1_w.sh; rm -rf WPM_sZadN1_w.sh
+			}
+
+			function Add_user {
+				echo "- Add user"
+				get_user_input wc_user STR "	What is the new users username? : "
+				get_user_input wc_mail STR "	What is the new users mail? : "
+
+				wp user create $wc_user $wc_mail --role=administrator --allow-root
+			}
+
+			function Change_password {
+				echo "- Change password"
+				get_user_input wc_user STR "	What is the users username? : "
+				get_user_input wc_pass STR "	What is the new password? : "
+
+				wp user update $wc_user --user_pass="$wc_pass" --allow-root
+			}
+
+			function Set_root_priv {
+				echo "- Set root priv"
+				get_user_input wc_user STR "	What is the users username? : "
+
+				wp user update $wc_user --role=administrator --allow-root
+			}
+		## WC functions
+
+		## Define Commands
+			wc_Commands=("1.Add user" "| 2.Change password" "| 3.Set root priv" "| 4.WordPress migration" "| 5.Naknik function" "| 6.commands while plugin error")
+
+			function wc_get_input {
+				echo -e "${wc_Commands[@]}\n"
+				read -p "- Which tool do you want to use? : " wc_Command_id
+
+				while [ -z "$wc_Command_id" ]; do
+					wc_get_input
+				done
+
+				while [ $wc_Command_id -gt ${#wc_Commands[@]} ] || [ $wc_Command_id -lt 0 ] || ! [[ $wc_Command_id =~ ^[0-9]+$ ]]; do
+					echo -e "\033[0;31mYou can't use $wc_Command_id, it does not exist or is not a valid integer!\033[0m"
+						wc_get_input
+				done
+			}
+			wc_get_input
+
+			wc_Command_id=$(( $wc_Command_id - 1 ))
+		## Define commands
+
+		## Call command
+			wc_command_function="$(echo ${wc_Commands[$wc_Command_id]} | awk -F '.' '{print $2}' | tr -s " " "_")"
+			$wc_command_function
+		## Call command
+	}
+
+	# 4 - Running proc
+	function Running_proc {
+		get_user_input rp_user STR "What is the user you want to check? : "
+
+		watch "ps -u $rp_user | tail -n +2 | cat -n"
+	}
+## Functions
+
+## Define tools
+
+	echo "Jet-Tools:"
+	Tools=("1.imunify malicious list" "| 2.Alter tables" "| 3.WordPress related" "| 4.Running proc")
+
+	function get_input {
+		echo -e "${Tools[@]}\n"
+		read -p "- Which tool do you want to use? : " tool_id
+
+		while [ -z "$tool_id" ]; do
+			get_input
+		done
+
+		while [ $tool_id -gt ${#Tools[@]} ] || [ $tool_id -lt 0 ] || ! [[ $tool_id =~ ^[0-9]+$ ]]; do
+			echo -e "\033[0;31mYou can't use $tool_id, it does not exist or is not a valid integer!\033[0m"
+				get_input
+		done
+	}
+	get_input
+
+	tool_id=$(( $tool_id - 1 ))
+## Define tools
+
+## Call tool
+	tool_function="$(echo ${Tools[$tool_id]} | awk -F '.' '{print $2}' | tr -s " " "_")"
+	echo -e "\n----\n$( echo "${Tools[$tool_id]}" | awk -F '.' '{print $2}') :"
+	$tool_function
+## Call tool
