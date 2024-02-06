@@ -181,12 +181,12 @@
 		if [ "$(echo "$status_code" | cut -c 1)" -eq "3" ] || [ "$(echo "$status_code" | cut -c 1)" -eq "2" ]; then
 			wget -O "$file_name" --no-check-certificate --quiet "$download_url"
 			if [ "$?" -eq 0 ]; then
-				echo "File downloaded at: $(pwd)/$file_name"
+				echo " - File downloaded at: $(pwd)/$file_name"
 			else
-				echo "There was an error while downloading $file_name"
+				echo " - There was an error while downloading $file_name"
 			fi
 		else
-			echo "URL is invalid (status code: $status_code), exiting."
+			echo " - URL is invalid (status code: $status_code), exiting."
 			exit 1
 		fi
 	}
