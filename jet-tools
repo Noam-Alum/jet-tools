@@ -21,21 +21,21 @@
 		# Join the remaining arguments to form the complete prompt
 		prompt="$*"
 
-		read -p " - $prompt" $var_name
+		read -p " - $prompt" $var_name < /dev/tty
 
 		while [ -z "${!var_name}" ]; do
-			read -p " - $prompt" $var_name
+			read -p " - $prompt" $var_name < /dev/tty
 		done
 
 		if [ "$var_type" == "INT" ]; then
 			while ! [[ ${!var_name} =~ ^[0-9]+$ ]]; do
 				echo " - Insert an integer!"
-				read -p " - $prompt" $var_name
+				read -p " - $prompt" $var_name < /dev/tty
 			done
 		elif [ "$var_type" == "STR" ]; then
 			while [[ -n "${!var_name}" && "${!var_name}" =~ ^[0-9]+$ ]]; do
 				echo " - Insert a string!"
-				read -p " - $prompt" $var_name
+				read -p " - $prompt" $var_name < /dev/tty
 			done
 		fi
 
@@ -126,7 +126,7 @@
 
 			function wc_get_input {
 				echo -e "${wc_Commands[@]}\n"
-				read -p "- Which tool do you want to use? : " wc_Command_id
+				read -p "- Which tool do you want to use? : " wc_Command_id < /dev/tty
 
 				while [ -z "$wc_Command_id" ]; do
 					wc_get_input
@@ -154,16 +154,40 @@
 
 		watch "ps -u $rp_user | tail -n +2 | cat -n"
 	}
+
+	# 5 - litespeed data domains
+	function litespeed_data_domains {
+		get_user_input dom_name STR "What domain would you like to search for? : "
+
+		VH_users=($(grep -rlo $dom_name /usr/local/lsws/conf/ | grep -v '.bak\|httpd_config' | awk -F '/usr/local/lsws/conf/' {'print $2'} | awk -F '.xml' {'print $1'}))
+
+		for ((i=0; i<${#VH_users[@]}; i++))
+		do
+			VH_roots+=($(cat /usr/local/lsws/conf/httpd_config.xml | sed -n "/<name>${VH_users[$i]}<\/name>/,/<\/vhRoot>/ s/.*<vhRoot>\([^<]*\)<\/vhRoot>.*/\1/p" | sed "s/\$VH_NAME\//${VH_users[$i]}/g"))
+			DOC_roots+=($(awk -F'<docRoot>\\$VH_ROOT|</docRoot>' 'NF>1{print $2}' /usr/local/lsws/conf/${VH_users[$i]}.xml))
+			
+			
+			echo -e "\n$(( 1 + $i)). User: ${VH_users[$i]}\n   Root directory: ${VH_roots[$i]}${DOC_roots[$i]}\n   Domains: \n$(sed -n "/<vhost>${VH_users[$i]}<\/vhost>/,/<domain>/s/.*<domain>\(.*\)<\/domain>.*/\1/p" /usr/local/lsws/conf/httpd_config.xml | sort -u | xargs -n 1 | cat -n)\n"
+		done
+	}
+
+	# 6 - download data eg drive dropbox
+	function download_data_eg_drive_dropbox () {
+		get_user_input file_name STR "What would you like to name your file? : "
+		get_user_input download_url STR "What is the download url? : "
+		wget -O "$file_name" --no-check-certificate --quiet "$download_url"
+	}
+	
 ## Functions
 
 ## Define tools
 
 	echo "Jet-Tools:"
-	Tools=("1.imunify malicious list" "| 2.Alter tables" "| 3.WordPress related" "| 4.Running proc")
+	Tools=("1.imunify malicious list" "| 2.Alter tables" "| 3.WordPress related" "| 4.Running proc" "| 5.litespeed data domains" "| 6.download data eg drive dropbox")
 
 	function get_input {
 		echo -e "${Tools[@]}\n"
-		read -p "- Which tool do you want to use? : " tool_id
+		read -p "- Which tool do you want to use? : " tool_id < /dev/tty
 
 		while [ -z "$tool_id" ]; do
 			get_input
