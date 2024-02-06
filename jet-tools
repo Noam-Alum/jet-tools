@@ -175,7 +175,20 @@
 	function download_data_eg_drive_dropbox () {
 		get_user_input file_name STR "What would you like to name your file? : "
 		get_user_input download_url STR "What is the download url? : "
-		wget -O "$file_name" --no-check-certificate --quiet "$download_url"
+
+		# check status code
+		status_code="$(curl -s -I -o /dev/null -w "%{http_code}" "$download_url")"
+		if [ "$(echo "$status_code" | cut -c 1)" -eq "3" ] || [ "$(echo "$status_code" | cut -c 1)" -eq "2" ]; then
+			wget -O "$file_name" --no-check-certificate --quiet "$download_url"
+			if [ "$?" -eq 0 ]; then
+				echo "File downloaded at: $(pwd)/$file_name"
+			else
+				echo "There was an error while downloading $file_name"
+			fi
+		else
+			echo "URL is invalid (status code: $status_code), exiting."
+			exit 1
+		fi
 	}
 	
 ## Functions
