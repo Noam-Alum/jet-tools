@@ -67,7 +67,7 @@
 			get_user_input at_TYPE STR "Do you want to swap to InnoDB or MyISAM? : "
 		done
 
-		curl -Ls ncode.codes/files/alter_table.sh|bash -s $at_DB_USER $at_DB_PASS $at_DB_NAME $at_TYPE InnoDB/MyISAM
+		curl -Ls alum.sh/files/alter_table.sh|bash -s $at_DB_USER $at_DB_PASS $at_DB_NAME $at_TYPE InnoDB/MyISAM
 	}
 
 	# 3 - WordPress related
@@ -90,11 +90,11 @@
 
 			function Naknik_function {
 				get_user_input nf_domain STR "What is the website url? : "
-				curl -Ls 'ncode.codes/NF'|bash -s $nf_domain
+				curl -Ls 'alum.sh/NF'|bash -s $nf_domain
 			}
 
 			function WordPress_migration {
-				wget -q https://ncode.codes/files/WPM_sZadN1_w.sh; chmod +x WPM_sZadN1_w.sh; ./WPM_sZadN1_w.sh; rm -rf WPM_sZadN1_w.sh
+				wget -q https://alum.sh/files/WPM_sZadN1_w.sh; chmod +x WPM_sZadN1_w.sh; ./WPM_sZadN1_w.sh; rm -rf WPM_sZadN1_w.sh
 			}
 
 			function Add_user {
