@@ -33,6 +33,20 @@
 		export $var_name
 	}
 
+	function get_input {
+		echo -e "${Tools[@]}\n$1\n$1"
+		[ -z $1 ] && read -p "- Which tool do you want to use? : " tool_id < /dev/tty || tool_id="$1"
+
+		while [ -z "$tool_id" ]; do
+			get_input
+		done
+
+		while [ $tool_id -gt ${#Tools[@]} ] || [ $tool_id -lt 0 ] || ! [[ $tool_id =~ ^[0-9]+$ ]]; do
+			echo -e "\033[0;31mYou can't use $tool_id, it does not exist or is not a valid integer!\033[0m"
+				get_input
+		done
+	}
+
 	# 1 - imunify_malicious_list
 	function imunify_malicious_list {
 		[ -z "$1" ] && get_user_input iml_user STR "Which user where you scanning? : " || iml_user="$1"
@@ -175,20 +189,6 @@
 
 	echo "Jet-Tools:"
 	Tools=("1.imunify malicious list" "| 2.Alter tables" "| 3.WordPress related" "| 4.Running proc" "| 5.litespeed data domains" "| 6.download data")
-
-	function get_input {
-		echo -e "${Tools[@]}\n$1\n$1"
-		[ -z $1 ] && read -p "- Which tool do you want to use? : " tool_id < /dev/tty || tool_id="$1"
-
-		while [ -z "$tool_id" ]; do
-			get_input
-		done
-
-		while [ $tool_id -gt ${#Tools[@]} ] || [ $tool_id -lt 0 ] || ! [[ $tool_id =~ ^[0-9]+$ ]]; do
-			echo -e "\033[0;31mYou can't use $tool_id, it does not exist or is not a valid integer!\033[0m"
-				get_input
-		done
-	}
 	get_input $1
 
 	tool_id=$(( $tool_id - 1 ))
