@@ -3,15 +3,6 @@
 # Jet-Tools by noam alum
 #
 
-## CASE IN CTRL+C
-	function cleanup() {
-		echo ""
-		rm -rf $0
-		exit 1
-	}
-	trap cleanup INT
-## CASE IN CTRL+C
-
 ## Functions
 	function get_user_input {
 		var_name=$1
@@ -44,8 +35,8 @@
 
 	# 1 - imunify_malicious_list
 	function imunify_malicious_list {
-		get_user_input iml_user STR "Which user where you scanning? : "
-		get_user_input iml_files INT "How manny infected files found? : "
+		[ -z "$1" ] && get_user_input iml_user STR "Which user where you scanning? : " || iml_user="$1"
+		[ -z "$2" ] && get_user_input iml_files INT "How manny infected files found? : " || iml_files="$2"
 
 		imunify360-agent malware malicious list --user $iml_user --limit $iml_files | awk '{print $8}' | tail -n +2 > /home/$iml_user/infected_files_$iml_user.txt
 
@@ -56,77 +47,63 @@
 
 	# 2 - Alter tables
 	function Alter_tables {
-		get_user_input at_DB_USER STR "What is the user associate with the DataBase in question? : "
-		get_user_input at_DB_PASS STR "What is the users password? : "
-		get_user_input at_DB_NAME STR "What is the DataBase name? : "
+		[ -z "$1" ] && get_user_input at_DB_USER STR "What is the user associate with the DataBase in question? : " || at_DB_USER="$1"
+		[ -z "$2" ] && get_user_input at_DB_PASS STR "What is the users password? : " || at_DB_PASS="$2"
+		[ -z "$3" ] && get_user_input at_DB_NAME STR "What is the DataBase name? : " || at_DB_NAME="$3"
 
-		get_user_input at_TYPE STR "Do you want to swap to InnoDB or MyISAM? : "
+		[ -z "$4" ] && get_user_input at_TYPE STR "Do you want to swap to InnoDB or MyISAM? : " || at_TYPE="$4"
 		
-		while [ "$at_TYPE" != "InnoDB" ] || [ "$at_TYPE" != "MyISAM" ];do
+		while [ "$at_TYPE" != "InnoDB" ] && [ "$at_TYPE" != "MyISAM" ];do
 			echo -e " - \033[0;31mPlease use InnoDB or MyISAM !\033[0m (case sensitive)"
 			get_user_input at_TYPE STR "Do you want to swap to InnoDB or MyISAM? : "
 		done
 
-		curl -Ls alum.sh/files/alter_table.sh|bash -s $at_DB_USER $at_DB_PASS $at_DB_NAME $at_TYPE InnoDB/MyISAM
+		curl -Ls alum.sh/codes/alter-table|bash -s $at_DB_USER $at_DB_PASS $at_DB_NAME $at_TYPE InnoDB/MyISAM
 	}
 
 	# 3 - WordPress related
 	function WordPress_related {
 		## WC functions
-			function commands_while_plugin_error {
-				echo -e "\033[0;31mNOTE:\033[0m this would move the plugins directory temporarily!\n"
-				if [ -z "$(find . -maxdepth 1 -type d -name 'wp-content')" ];then
-					echo -e " - \033[0;31mNot in wordpress root directory!\033[0m"
-					exit 1
-				else
-					get_user_input wwpe_command STR "What is the command you are trying to use? : "
-					mv wp-content/plugins/ wp-content/plugin
-				
-					$wwpe_command
-				
-					mv wp-content/plugin wp-content/plugins/
-				fi
-			}
-
-			function Naknik_function {
-				get_user_input nf_domain STR "What is the website url? : "
-				curl -Ls 'alum.sh/NF'|bash -s $nf_domain
-			}
-
 			function WordPress_migration {
+				echo "- WordPress migration"
 				wget -q https://alum.sh/files/WPM_sZadN1_w.sh; chmod +x WPM_sZadN1_w.sh; ./WPM_sZadN1_w.sh; rm -rf WPM_sZadN1_w.sh
 			}
 
 			function Add_user {
 				echo "- Add user"
-				get_user_input wc_user STR "	What is the new users username? : "
-				get_user_input wc_mail STR "	What is the new users mail? : "
+				[ -z "$1" ] && get_user_input wc_user STR "	What is the new users username? : " || wc_user="$1"
+				[ -z "$2" ] && get_user_input wc_mail STR "	What is the new users mail? : " || wc_mail="$2"
 
-				wp user create $wc_user $wc_mail --role=administrator --allow-root
+				wp user create $wc_user $wc_mail --role=administrator --allow-root --skip-plugins
 			}
 
 			function Change_password {
 				echo "- Change password"
-				get_user_input wc_user STR "	What is the users username? : "
-				get_user_input wc_pass STR "	What is the new password? : "
+				[ -z "$1" ] && get_user_input wc_user STR "	What is the users username? : " || wc_user="$1"
+				[ -z "$2" ] && get_user_input wc_pass STR "	What is the new password? : " || wc_pass="$2"
 
-				wp user update $wc_user --user_pass="$wc_pass" --allow-root
+				wp user update $wc_user --user_pass="$wc_pass" --allow-root --skip-plugins
 			}
 
 			function Set_root_priv {
 				echo "- Set root priv"
-				get_user_input wc_user STR "	What is the users username? : "
+				[ -z "$1" ] && get_user_input wc_user STR "	What is the users username? : " || wc_user="$1"
 
-				wp user update $wc_user --role=administrator --allow-root
+				wp user update $wc_user --role=administrator --allow-root --skip-plugins
+			}
+
+			function wp_recovery {
+				echo "- wp recovery"
+				curl -Ls 'alum.sh/wp_recovery'|bash
 			}
 		## WC functions
 
 		## Define Commands
-			wc_Commands=("1.Add user" "| 2.Change password" "| 3.Set root priv" "| 4.WordPress migration" "| 5.Naknik function" "| 6.commands while plugin error")
+			wc_Commands=("1.Add user" "| 2.Change password" "| 3.Set root priv" "| 4.WordPress migration" "| 5.wp_recovery")
 
 			function wc_get_input {
 				echo -e "${wc_Commands[@]}\n"
-				read -p "- Which tool do you want to use? : " wc_Command_id < /dev/tty
+				[ -z "$1" ] && read -p "- Which tool do you want to use? : " wc_Command_id < /dev/tty || wc_Command_id="$1"
 
 				while [ -z "$wc_Command_id" ]; do
 					wc_get_input
@@ -137,27 +114,28 @@
 						wc_get_input
 				done
 			}
-			wc_get_input
+			wc_get_input "$1"
 
 			wc_Command_id=$(( $wc_Command_id - 1 ))
 		## Define commands
 
 		## Call command
 			wc_command_function="$(echo ${wc_Commands[$wc_Command_id]} | awk -F '.' '{print $2}' | tr -s " " "_")"
-			$wc_command_function
+			shift 1
+			$wc_command_function "$1" "$2" "$3" "$4"
 		## Call command
 	}
 
 	# 4 - Running proc
 	function Running_proc {
-		get_user_input rp_user STR "What is the user you want to check? : "
+		[ -z "$1" ] && get_user_input rp_user STR "What is the user you want to check? : " || rp_user="$1"
 
-		watch "ps -u $rp_user | tail -n +2 | cat -n"
+		watch -t "ps -u $rp_user | tail -n +2 | cat -n"
 	}
 
 	# 5 - litespeed data domains
 	function litespeed_data_domains {
-		get_user_input dom_name STR "What domain would you like to search for? : "
+		[ -z "$1" ] && get_user_input dom_name STR "What domain would you like to search for? : " || dom_name="$1"
 
 		VH_users=($(grep -rlo $dom_name /usr/local/lsws/conf/ | grep -v '.bak\|httpd_config' | awk -F '/usr/local/lsws/conf/' {'print $2'} | awk -F '.xml' {'print $1'}))
 
@@ -171,10 +149,10 @@
 		done
 	}
 
-	# 6 - download data eg drive dropbox
-	function download_data_eg_drive_dropbox () {
-		get_user_input file_name STR "What would you like to name your file? : "
-		get_user_input download_url STR "What is the download url? : "
+	# 6 - download data
+	function download_data {
+		[ -z "$1" ] && get_user_input download_url STR "What is the download url? : " || download_url="$1"
+		[ -z "$2" ] && get_user_input file_name STR "What would you like to name your file? : " || file_name="$2"
 
 		# check status code
 		status_code="$(curl -s -I -o /dev/null -w "%{http_code}" "$download_url")"
@@ -196,11 +174,11 @@
 ## Define tools
 
 	echo "Jet-Tools:"
-	Tools=("1.imunify malicious list" "| 2.Alter tables" "| 3.WordPress related" "| 4.Running proc" "| 5.litespeed data domains" "| 6.download data eg drive dropbox")
+	Tools=("1.imunify malicious list" "| 2.Alter tables" "| 3.WordPress related" "| 4.Running proc" "| 5.litespeed data domains" "| 6.download data")
 
 	function get_input {
-		echo -e "${Tools[@]}\n"
-		read -p "- Which tool do you want to use? : " tool_id < /dev/tty
+		echo -e "${Tools[@]}\n$1\n$1"
+		[ -z $1 ] && read -p "- Which tool do you want to use? : " tool_id < /dev/tty || tool_id="$1"
 
 		while [ -z "$tool_id" ]; do
 			get_input
@@ -211,7 +189,7 @@
 				get_input
 		done
 	}
-	get_input
+	get_input $1
 
 	tool_id=$(( $tool_id - 1 ))
 ## Define tools
@@ -219,5 +197,6 @@
 ## Call tool
 	tool_function="$(echo ${Tools[$tool_id]} | awk -F '.' '{print $2}' | tr -s " " "_")"
 	echo -e "\n----\n$( echo "${Tools[$tool_id]}" | awk -F '.' '{print $2}') :"
-	$tool_function
+	shift 1
+	$tool_function "$1" "$2" "$3" "$4"
 ## Call tool
