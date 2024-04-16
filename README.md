@@ -35,3 +35,5 @@ imunify malicious list :
  - How manny infected files found? : 2022
  - infected files list was created in /home/user/infected_files_user.txt
 ```
+
+[script breakdown](https://github.com/Noam-Alum/jet-tools/blob/main/script-breakdown.md)
