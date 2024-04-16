@@ -1,23 +1,18 @@
 # script breakdown
 
-<details>
-    <summary>Full script:</summary>
-    <p><iframe src="https://gitcodeembedder.blogspot.com/?gh=Noam-Alum/jet-tools/main/jet-tools&amp;lang=bash" width="100%" height="700px" frameborder="0"></iframe></p>
-</details>
-
 ## Structure
 
 The general structure of the jet-tools script is:
 
-- [**Functions**](/jet-tools/script-breakdown.html#functions)
-- [**Define tools**](/jet-tools/script-breakdown.html#define-tools)
-- [**Call tool**](/jet-tools/script-breakdown.html#call-tool)
+- [**Functions**](#functions)
+- [**Define tools**](#define-tools)
+- [**Call tool**](#call-tool)
 
-All of the tools functions in the script are cerfully named in the `Tools` array:
+All of the tools functions in the script are carefully named in the `Tools` array:
 ```sh
 Tools=("1.imunify malicious list" "| 2.Alter tables" "| 3.WordPress related" "| 4.Running proc" "| 5.litespeed data domains" "| 6.download data")
 ```
-Basically the items in the array are the [functions](/jet-tools/script-breakdown.html#functions) names but with spaces instead of hyphens (the item `imunify malicious list` is equal to a function named `imunify_malicious_list`), this lets be call the function with ease and makes adding/removing functions (tools) convenient.
+Basically the items in the array are the [functions](#functions) names but with spaces instead of hyphens (the item `imunify malicious list` is equal to a function named `imunify_malicious_list`), this lets be call the function with ease and makes adding/removing functions (tools) convenient.
 
 POC:
 ```sh
@@ -40,7 +35,7 @@ get_input $1
 tool_id=$(( $tool_id - 1 ))
 ```
 
-the Define tools section uses the [get_input](/jet-tools/script-breakdown.html#get-input) function to allow users to select what tool they want to use.
+the Define tools section uses the [get_input](#get-input) function to allow users to select what tool they want to use.
 ```sh
 function get_input {
 	echo -e "${Tools[@]}\n$1\n$1"
@@ -82,21 +77,21 @@ Finally it calls the function with the same name as the value of `$tool_function
 shift 1
 $tool_function "$1" "$2" "$3" "$4"
 ```
-We have to `shift 1` because we've used `$1` in the [Define tools](/jet-tools/script-breakdown.html#define-tools) section.
+We have to `shift 1` because we've used `$1` in the [Define tools](#define-tools) section.
 ### Functions:
 
 The Functions zone holds all the functions used in the script, it includes the following functions:
 
-- [get_user_input](/jet-tools/script-breakdown.html#get-user-input)
-- [get_input](/jet-tools/script-breakdown.html#get-input)
-- [imunify_malicious_list](/jet-tools/tools/imunify-malicious-list.html)
-- [Alter_tables](/jet-tools/tools/Alter-tables.html)
-- [WordPress_related](/jet-tools/tools/WordPress-related.html)
-- [Running_proc](/jet-tools/tools/Running_proc.html)
-- [litespeed_data_domains](/jet-tools/tools/litespeed_data_domains.html)
-- [download_data](/jet-tools/tools/download_data.html)
+- [get_user_input](#get-user-input)
+- [get_input](#get-input)
+- [imunify_malicious_list](https://github.com/Noam-Alum/jet-tools/blob/main/tools/imunify-malicious-list.md)
+- [Alter_tables](https://github.com/Noam-Alum/jet-tools/blob/main/tools/Alter-tables.md)
+- [WordPress_related](https://github.com/Noam-Alum/jet-tools/blob/main/tools/WordPress-related.md)
+- [Running_proc]([/jet-tools/tools/Running_proc.html](https://github.com/Noam-Alum/jet-tools/blob/main/tools/Running_proc.md))
+- [litespeed_data_domains](https://github.com/Noam-Alum/jet-tools/blob/main/tools/litespeed_data_domains.md)
+- [download_data](https://github.com/Noam-Alum/jet-tools/blob/main/tools/download_data.md)
 
-#### get_user_input:
+### get_user_input:
 Function:
 ```sh
 function get_user_input {
@@ -139,7 +134,7 @@ If the variable is an int the function verifies that the input is an integer, if
 
 Finally it exports the users input as a variable named based on what you provided the function.
 
-#### get_input:
+### get_input:
 Function:
 ```sh
 function get_input {
@@ -162,4 +157,4 @@ If the input equals zero, not an integer, greater than the arrays length or equa
 
 ## Visual explanation:
 
-![image](/images/jet-tools-example.png)
+![image](https://docs.alum.sh/images/jet-tools-example.png)
