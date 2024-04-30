@@ -1,3 +1,7 @@
+# Documentation
+
+Click [here](https://docs.alum.sh/jet-tools/introduction-and-usage.html) to view the jet-tools documentation.
+
 # introduction && usage
 
 ## usage
