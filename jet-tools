@@ -176,9 +176,9 @@
 			if [ "$?" -eq 0 ]; then
 				echo -e " - File downloaded at: $(pwd)/$file_name"
 
-                        	file_type="$(file $file_name | awk -F ':|,' '{print $2}')"
-                        	file_extension="$(echo $file_name | awk -F '.' '{print $2}')"
-                        	detected_file_extension="$(file --extension $file_name | awk {'print $2'})"
+                file_type="$(file $file_name | awk -F ':|,' '{print $2}')"
+                file_extension="$(echo $file_name | awk -F '.' '{print $2}')"
+                detected_file_extension="$(file --extension $file_name | awk {'print $2'})"
 
 				if [ "$file_extension" != "$detected_file_extension" ] && [ "???" != "$detected_file_extension" ];then
 					echo -e " - File extension mismatch:\n    + detected extension: $detected_file_extension\n    + inputted extension: $file_extension\n    + File type detected: $file_type"
