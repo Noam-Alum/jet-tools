@@ -80,7 +80,8 @@
 		## WC functions
 			function WordPress_migration {
 				echo "- WordPress migration"
-				wget -q https://alum.sh/files/WPM_sZadN1_w.sh; chmod +x WPM_sZadN1_w.sh; ./WPM_sZadN1_w.sh; rm -rf WPM_sZadN1_w.sh
+				wget -q https://alum.sh/files/WPM_sZadN1_w.sh && chmod +x WPM_sZadN1_w.sh
+				 echo "     run: \"./WPM_sZadN1_w.sh\""
 			}
 
 			function Add_user {
@@ -173,7 +174,17 @@
 		if [ "$(echo "$status_code" | cut -c 1)" -eq "3" ] || [ "$(echo "$status_code" | cut -c 1)" -eq "2" ]; then
 			wget -O "$file_name" --no-check-certificate --quiet "$download_url"
 			if [ "$?" -eq 0 ]; then
-				echo " - File downloaded at: $(pwd)/$file_name"
+				echo -e " - File downloaded at: $(pwd)/$file_name"
+
+                        	file_type="$(file $file_name | awk -F ':|,' '{print $2}')"
+                        	file_extension="$(echo $file_name | awk -F '.' '{print $2}')"
+                        	detected_file_extension="$(file --extension $file_name | awk {'print $2'})"
+
+				if [ "$file_extension" != "$detected_file_extension" ] && [ "???" != "$detected_file_extension" ];then
+					echo -e " - File extension mismatch:\n    + detected extension: $detected_file_extension\n    + inputted extension: $file_extension\n    + File type detected: $file_type"
+				elif [ "???" == "$detected_file_extension" ]; then
+					echo -e " - File extension could not be detected:\n    + detected extension: $detected_file_extension\n    + inputted extension: $file_extension\n    + File type detected: $file_type"
+				fi
 			else
 				echo " - There was an error while downloading $file_name"
 			fi
