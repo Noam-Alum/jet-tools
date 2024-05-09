@@ -34,7 +34,7 @@
 	}
 
 	function get_input {
-		echo -e "${Tools[@]}\n$1\n$1"
+		echo -e "$(for ((i = 0; i < ${#Tools[@]}; i++)); do echo "$(( $i + 1)).${Tools[$i]}" | tr -s " " "_" && [ $(( $i + 1 )) != ${#Tools[@]} ] && echo "|"; done | xargs)\n$1\n$1"
 		[ -z $1 ] && read -p "- Which tool do you want to use? : " tool_id < /dev/tty || tool_id="$1"
 
 		while [ -z "$tool_id" ]; do
@@ -114,10 +114,10 @@
 		## WC functions
 
 		## Define Commands
-			wc_Commands=("1.Add user" "| 2.Change password" "| 3.Set root priv" "| 4.WordPress migration" "| 5.wp_recovery")
+			wc_Commands=("Add user" "Change password" "Set root priv" "WordPress migration" "wp_recovery")
 
 			function wc_get_input {
-				echo -e "${wc_Commands[@]}\n"
+				echo -e "$(for ((i = 0; i < ${#wc_Commands[@]}; i++)); do echo "$(( $i + 1)).${wc_Commands[$i]}" | tr -s " " "_" && [ $(( $i + 1 )) -ne ${#wc_Commands[@]} ] && echo "|"; done | xargs)\n"
 				[ -z "$1" ] && read -p "- Which tool do you want to use? : " wc_Command_id < /dev/tty || wc_Command_id="$1"
 
 				while [ -z "$wc_Command_id" ]; do
@@ -135,7 +135,7 @@
 		## Define commands
 
 		## Call command
-			wc_command_function="$(echo ${wc_Commands[$wc_Command_id]} | awk -F '.' '{print $2}' | tr -s " " "_")"
+			wc_command_function="$(echo "${wc_Commands[$wc_Command_id]}" | tr -s " " "_"})"
 			shift 1
 			$wc_command_function "$1" "$2" "$3" "$4"
 		## Call command
@@ -197,17 +197,17 @@
 ## Functions
 
 ## Define tools
-
 	echo "Jet-Tools:"
-	Tools=("1.imunify malicious list" "| 2.Alter tables" "| 3.WordPress related" "| 4.Running proc" "| 5.litespeed data domains" "| 6.download data")
+	Tools=("imunify malicious list" "Alter tables" "WordPress related" "Running proc" "litespeed data domains" "download data")
 	get_input $1
 
 	tool_id=$(( $tool_id - 1 ))
 ## Define tools
 
 ## Call tool
-	tool_function="$(echo ${Tools[$tool_id]} | awk -F '.' '{print $2}' | tr -s " " "_")"
-	echo -e "\n----\n$( echo "${Tools[$tool_id]}" | awk -F '.' '{print $2}') :"
+	tool_function=$(echo "${Tools[$tool_id]}" | tr -s " " "_"})
+	echo $tool_function
+	echo -e "\n----\n$tool_function :"
 	shift 1
 	$tool_function "$1" "$2" "$3" "$4"
 ## Call tool
