@@ -206,7 +206,6 @@
 
 ## Call tool
 	tool_function=$(echo "${Tools[$tool_id]}" | tr -s " " "_"})
-	echo $tool_function
 	echo -e "\n----\n$tool_function :"
 	shift 1
 	$tool_function "$1" "$2" "$3" "$4"
